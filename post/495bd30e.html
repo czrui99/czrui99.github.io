@@ -1,0 +1,398 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>C++ new与delete | Arui</title><meta name="keywords" content="CPP"><meta name="author" content="黎明の守望者"><meta name="copyright" content="黎明の守望者"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="本文先是介绍了C中指针类型强制转换的用法与内部实现，为理解后续C++中new[]数组和delete[]的基本原理做铺垫">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++ new与delete">
+<meta property="og:url" content="https://czrui99.github.io/post/495bd30e.html">
+<meta property="og:site_name" content="Arui">
+<meta property="og:description" content="本文先是介绍了C中指针类型强制转换的用法与内部实现，为理解后续C++中new[]数组和delete[]的基本原理做铺垫">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://czrui99.oss-cn-chengdu.aliyuncs.com/Cpp小知识点.png">
+<meta property="article:published_time" content="2022-08-25T06:57:17.000Z">
+<meta property="article:modified_time" content="2022-08-27T07:45:50.000Z">
+<meta property="article:author" content="黎明の守望者">
+<meta property="article:tag" content="CPP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://czrui99.oss-cn-chengdu.aliyuncs.com/Cpp小知识点.png"><link rel="shortcut icon" href="https://czrui99.oss-cn-chengdu.aliyuncs.com/头像.jpg"><link rel="canonical" href="https://czrui99.github.io/post/495bd30e"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="XuQ492rP0A8na65TM5TUnfGZDq_Uj2mMFUFfPMZL9uM"/><meta name="baidu-site-verification" content="code-nmA358lSIW"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: {"appId":"2Z2TCBQMCD","apiKey":"20bec46ff7dfe65428b5a1578a88913e","indexName":"hexo","hits":{"per_page":6},"languages":{"input_placeholder":"搜索文章","hits_empty":"找不到您查询的内容：${query}","hits_stats":"找到 ${hits} 条结果，用时 ${time} 毫秒"}},
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'C++ new与delete',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-08-27 15:45:50'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel='stylesheet' href='/css/MyStyle.css'> <link rel='stylesheet' href='/css/iconfont.css'> <link rel="stylesheet" href="/css/font.css"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://unpkg.zhimg.com/hexo-butterfly-wowjs/lib/animate.min.css" media="print" onload="this.media='screen'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.2.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://czrui99.oss-cn-chengdu.aliyuncs.com/头像.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">27</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/bb/"><i class="fa-fw fas fa-bomb"></i><span> 动态</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background: linear-gradient(20deg, #0062be, #925696, #cc426e, #fb0347)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Arui</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/bb/"><i class="fa-fw fas fa-bomb"></i><span> 动态</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">C++ new与delete</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-08-25T06:57:17.000Z" title="发表于 2022-08-25 14:57:17">2022-08-25</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-08-27T07:45:50.000Z" title="更新于 2022-08-27 15:45:50">2022-08-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/CPP/">CPP</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">2.7k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>10分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="C++ new与delete"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><blockquote>
+<p>思考由来：<a target="_blank" rel="noopener" href="https://puluter.cn/20200331/delete/">关于c++内delete[]原理的探索</a></p>
+</blockquote>
+<h1 id="1-地址、字节、位">1.地址、字节、位</h1>
+<ul>
+<li>
+<p>位（bit）是电子计算机中最小的数据单位。每一位的状态只能是0或1。</p>
+</li>
+<li>
+<p>字节（Byte）是用于计量存储容量的一种单位，每一个字节由8位组成（1Byte = 8bit）。</p>
+</li>
+<li>
+<p>地址可以理解为在一片内存中，每个字节（Byte）的编号。</p>
+</li>
+</ul>
+<p>他们在内存中的关系可以比作，内存是一栋大楼，字节（Byte）是大楼中的每一层，地址是楼层编号，位（bit）是每一层中的房间，每一层有8个房间。</p>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/format.png" alt=""></p>
+<h1 id="2-变量的内存">2.变量的内存</h1>
+<p>编译器根据变量的类型，在内存中申请一块空间。例如32位与64位中 int 类型申请到4字节的空间，可理解为编译器申请了4层楼，作为”办公区域“。</p>
+<h1 id="3-指针变量">3.指针变量</h1>
+<p>指针是指程序数据在内存中的地址。在C++语言当中，允许用一个变量来存放指针，这种变量称为指针变量。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="number">1</span>　   <span class="type">int</span> a;</span><br><span class="line"><span class="number">2</span> 　　<span class="type">int</span> *p;</span><br><span class="line"><span class="number">3</span> 　　p = &amp;a;</span><br><span class="line"><span class="number">4</span> 　　printf(<span class="string">&quot;%p %d\n&quot;</span>,p,*p);</span><br></pre></td></tr></table></figure>
+<p>​	以上程序中，”&amp;“操作符取出了变量 a 在内存空间中的首地址，而后通过 “ * ” 操作符取出首地址所在内存空间的数据。</p>
+<p>​	前面我们提到，存储变量的内存，是由多个字节组成。而指针变量在只知道首地址（第一个字节的地址）的情况下，就能找到a的内存区域。它是怎么做到的？先来看看指针变量的声明。</p>
+<p>​	我们在声明一个指针变量的时候，会根据它将要指向的变量类型，声明对应的类型，例如：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="number">1</span>     <span class="type">int</span> a;</span><br><span class="line"><span class="number">2</span>     <span class="type">long</span> b;</span><br><span class="line"><span class="number">3</span>     <span class="type">char</span> c;</span><br><span class="line"><span class="number">4</span> </span><br><span class="line"><span class="number">5</span>     <span class="type">int</span> *pa = &amp;a;</span><br><span class="line"><span class="number">6</span>     <span class="type">long</span> *pb = &amp;b;</span><br><span class="line"><span class="number">7</span>     <span class="type">char</span> *pc = &amp;c;</span><br></pre></td></tr></table></figure>
+<p>不管是什么类型的指针变量，所存的值都是地址（int类型的值）。</p>
+<p>那么声明不同类型的作用是什么？<strong>答案是规定指针在内存中每次移动的字节数</strong>。</p>
+<p>例如定义<code>int *pa = &amp;a</code>，取值时，<code>int</code>类型占4个字节，指针就从首地址开始移动，读取4个字节。同理，<code>short</code>类型占2字节，指针就移动2字节。通过声明指针类型，告诉指针每次移动多少字节，来获取变量的值。</p>
+<h1 id="4-值相同的两个指针所指向的变量的值可以不同">4.值相同的两个指针所指向的变量的值可以不同</h1>
+<p>“值相同的两个指针变量”，意思是两个指针变量指向同一个首地址。但是如果指针变量的类型不同，因为指针移动的字节数量不同，就可能读取出不同的数据。</p>
+<p>要实现不同类型指针变量指向同一个地址，需要使用指针类型转换。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">#include &lt;iostream&gt;</span><br><span class="line">using namespace std;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="type">short</span> <span class="variable">a</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line">  <span class="type">short</span> *p1 = &amp;a;</span><br><span class="line">  <span class="type">int</span> *p2 = (<span class="type">int</span> *)p1;</span><br><span class="line">  cout &lt;&lt; <span class="string">&quot;p1=&quot;</span> &lt;&lt; *p1 &lt;&lt; endl; <span class="comment">//输出p1=1</span></span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;p2=&quot;</span> &lt;&lt; *p2 &lt;&lt; endl; <span class="comment">//输出p2 = -32636927</span></span><br><span class="line">	system(<span class="string">&quot;pause&quot;</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以上例子将一个每次移动读取2字节的 short 类型指针变量，转化为一个每次读取4字节的int型指针变量。因此很显然，p1能读取到正确的结果，而p2会多读取两个字节的数据，最终算出来的数据错误。</p>
+<p>接下来，我们通过指针类型转换，用同一个首地址，取出不同的值。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="number">1</span>#include &lt;iostream&gt;</span><br><span class="line">using namespace std;</span><br><span class="line"></span><br><span class="line"> <span class="number">2</span> <span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line"> <span class="number">3</span> &#123;</span><br><span class="line"> <span class="number">4</span>     <span class="type">short</span> c[<span class="number">2</span>];               <span class="comment">//等价于申请2个连续的内存空间，每个空间2字节 </span></span><br><span class="line"> <span class="number">5</span>     c[<span class="number">0</span>] = <span class="number">1</span>;              　　<span class="comment">//为第一个short空间赋值为1 </span></span><br><span class="line"> <span class="number">6</span>     c[<span class="number">1</span>] = <span class="number">1</span>;              　　<span class="comment">//为第二个short空间赋值为1 </span></span><br><span class="line"> <span class="number">7</span>     <span class="type">short</span> *p1 = c;            <span class="comment">//p1指向c[]首地址 </span></span><br><span class="line"> <span class="number">8</span>     <span class="type">int</span> *p2 = (<span class="type">int</span> *)p1;      <span class="comment">//p2指向c[]首地址，并强制转换类型为 int </span></span><br><span class="line"> <span class="number">9</span> </span><br><span class="line"><span class="number">10</span>     printf(<span class="string">&quot;p1指向：%p\np2指向：%p\n&quot;</span>,p1,p2);      </span><br><span class="line"><span class="number">11</span>     printf(<span class="string">&quot;p1取出：%d\np2取出：%d\n&quot;</span>,*p1,*p2);</span><br><span class="line"><span class="number">12</span>     <span class="keyword">return</span> <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+<p>对应结果为：</p>
+<p>p1指向：<code>000000000062FE30</code><br>
+　　　　p2指向：<code>000000000062FE30</code><br>
+　　　　p1取出：1<br>
+　　　　p2取出：65537</p>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/format12s.png" alt=""></p>
+<p>根据二进制转换得，<code>10000000000000001</code> 为 65537。由此可验证强制转换前指针读取2字节，转化后读取4字节。两个指针指向的首地址相同，但是读出了不同的结果。</p>
+<h1 id="5-关于c-内delete-原理的探索">5. 关于c++内delete[]原理的探索</h1>
+<blockquote>
+<p>本文转载自重庆大学于卓浩同学写的文章：(<a target="_blank" rel="noopener" href="https://puluter.cn/20200331/delete/">https://puluter.cn/20200331/delete/</a>)</p>
+</blockquote>
+<p>在面向对象编程中，我们经常会用到这样的动态分配数组：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Person* a = <span class="keyword">new</span> <span class="title class_">Person</span>[<span class="number">100</span>];</span><br></pre></td></tr></table></figure>
+<p>在上述申请数组的过程中，我们使用到了<code>new []</code>这个表达式来完成，它会调用类的构造函数初始化这个数组的所有对象，有多少对象，就会执行多少次构造函数。如果我们用完了这个数组，想要释放空间，就需要调用：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">delete[] a;</span><br></pre></td></tr></table></figure>
+<p>在这个过程中，我们使用了<code>delete[]</code>操作符来完成对象释放。</p>
+<p>但是两个问题出现了：</p>
+<ul>
+<li>如何知道a数组的内存空间大小？</li>
+<li>如何知道要调用几次析构函数（a数组的元素个数）？</li>
+</ul>
+<p>显然，想要知道数组有多长，我们必然要存下这个数组的长度。C++中也正是这么做的。本文讨论具体工作原理。</p>
+<h2 id="5-1-结合代码的分析">5.1. 结合代码的分析</h2>
+<table> 
+ <tbody> 
+  <tr> 
+   <th>注：本文适用于64位mingw。在32位mingw下后文内8字节应为4字节，long long应为int。</th> 
+  </tr> 
+ </tbody> 
+</table>
+<p>我们先定义一个自定义的类。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Yu</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="type">int</span> iNumber;<span class="comment">//Yu类内将只有这一个int变量</span></span><br><span class="line">    <span class="comment">//即 一个Yu对象的大小=一个int的大小=4字节</span></span><br><span class="line">    <span class="built_in">Yu</span>()&#123;iNumber = <span class="number">1</span>;&#125;</span><br><span class="line">    ~<span class="built_in">Yu</span>()&#123;&#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>同时，在main中声明一个长度为<code>len</code>(20194134)的<code>Yu</code>类型的数组，再获取该数组开头的地址并打印。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="type">const</span> <span class="type">long</span> <span class="type">long</span> len = <span class="number">20194134</span>;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  Yu* testArr = <span class="keyword">new</span> Yu[len];</span><br><span class="line">  <span class="type">char</span>* p1 = (<span class="type">char</span>*) testArr;</span><br><span class="line">  cout &lt;&lt; <span class="string">&quot;Address for the Array: &quot;</span>&lt;&lt; testArr &lt;&lt;endl;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出为：<code>Address for the Array: 0x2670048</code></p>
+<p>理论上，20194134个Yu对象，总共需要 20194134 x sizeof(Yu) = 80776536字节的空间。实际申请的堆（自由内存区）空间稍有出入，我们可以通过重载new [ ]操作符来研究。</p>
+<p>我们重载<code>new[]</code>了操作符：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="type">void</span>* <span class="keyword">operator</span> <span class="keyword">new</span>[](<span class="type">size_t</span> sz)&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;|Length: %lld\n|Real Size: %lld\n|Raw Size(int(4)*length): %lld\n|Gap: %lld\n&quot;</span>,len,sz,len*<span class="number">4</span>,(<span class="type">long</span> <span class="type">long</span>)sz-len*<span class="number">4</span>);</span><br><span class="line">    <span class="type">void</span>* o = <span class="built_in">malloc</span>(sz);</span><br><span class="line">    <span class="keyword">return</span> o;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在这个过程中，我们打印四个关键数值：</p>
+<ul>
+<li>数组的长度(len)</li>
+<li><code>new[]</code>过程中实际申请的内存空间大小(sz)</li>
+<li>数组理论上需要的内存空间 （数组长度 x sizeof(Yu) = len x 4 )</li>
+<li>实际空间与理论空间的差 ( sz - len x 4)</li>
+</ul>
+<p>上述程序的执行结果为：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">|Length: <span class="number">20194134</span></span><br><span class="line">|Real Size: <span class="number">80776544</span></span><br><span class="line">|<span class="function">Raw <span class="title">Size</span><span class="params">(<span class="type">int</span>(<span class="number">4</span>)*length)</span>: <span class="number">80776536</span></span></span><br><span class="line"><span class="function">|Gap: <span class="number">8</span></span></span><br></pre></td></tr></table></figure>
+<p>这里会发现，编译器传递给new [ ]操作符的空间大小比实际需要多8个字节。而8个字节，恰好是一个<code>long long</code>变量的大小，实践中，这8个字节用于存储动态数组的元素个数。</p>
+<p>为了弄清楚这8个字节的具体位置，我们重载了delete [ ]函数：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="type">void</span> <span class="keyword">operator</span> <span class="keyword">delete</span>[](<span class="type">void</span> *o)&#123;</span><br><span class="line">    cout&lt;&lt;<span class="string">&quot;Destruct from: &quot;</span>&lt;&lt;o&lt;&lt;endl;</span><br><span class="line">    <span class="built_in">free</span>(o);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="type">char</span>* p1 = (<span class="type">char</span>*) testArr;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;Address for the Array: &quot;</span>&lt;&lt; testArr &lt;&lt;endl;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">delete</span>[] testArr;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后几行的输出为：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">Address <span class="keyword">for</span> the Array: <span class="number">0x2670048</span></span><br><span class="line">...</span><br><span class="line">Destruct from: <span class="number">0x2670040</span></span><br></pre></td></tr></table></figure>
+<p>成了！我们发现，解构时得到的地址（0x2670040）恰好是数组的地址（0x2670048）减8。</p>
+<p>即：<code>0x2670048 = 0x2670040 + 8</code><br>
+接下来，我们更进一步，取出<code>数组地址-8</code>对应地址的一个<code>long long</code>变量，看一下它的值会是什么.</p>
+<p>接下来获取该数组前的8字节，识别为<code>long long</code>并打印。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="type">char</span>* p1 = (<span class="type">char</span>*) testArr;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;Address for the Array: &quot;</span>&lt;&lt; testArr &lt;&lt;endl;</span><br><span class="line">    cout&lt;&lt; <span class="string">&quot;The long long before the Array: &quot;</span> &lt;&lt; *(<span class="type">long</span> <span class="type">long</span>*)(p1-len_ll)&lt;&lt;endl;</span><br><span class="line">    <span class="keyword">delete</span>[] testArr;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出为：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">Address <span class="keyword">for</span> the Array: <span class="number">0x2670048</span></span><br><span class="line">The <span class="type">long</span> <span class="type">long</span> before the Array: <span class="number">20194134</span>   【这个值就是数组长度】</span><br><span class="line">Destuct from: <span class="number">0x2670040</span></span><br></pre></td></tr></table></figure>
+<p>代码给出的结果证明了前述的猜想：自定义类数组前的8个字节，是一个long long类型的变量，储存了该数组的长度。</p>
+<h2 id="5-2-结论">5.2. 结论</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/v2-01cc4ad855bce2ae1f9126eb68a8e4a1_720w_result.png" alt="v2-01cc4ad855bce2ae1f9126eb68a8e4a1_720w_result"></p>
+<p>我们以<code>Yu\* a = new Yu\[2\]</code>为例进行说明。表面上，我们需要<code>sizeof(Yu) x 2</code>共8个字节的空间，但事实上，new [ ]操作符会从堆里申请8 + 8 = 16个字节的空间。其中，前8个字节用于存储数组的元素个数，后续空间用于存放数组元素。具体到本例，变量a得到的是数组首元素的地址，它事实上等于真实的堆空间地址 + 8！</p>
+<p>当delete [ ]a被执行时：</p>
+<ul>
+<li><code>delete []</code>操作符会把a值 - 8，获得真实的堆空间首地址；</li>
+<li>从堆空间首地址获得数组的元素个数（本例为2）；</li>
+<li>依据元素个数及a值逐个执行全部数组元素的析构函数；</li>
+<li>最后，以堆空间首地址为依据，通过free( )函数向操作系统归还堆空间。</li>
+</ul>
+<p>本例中，如果执行<code>delete a</code>而不是<code>delete []a</code>，可能导致两个后果：</p>
+<ul>
+<li>仅有数组的首元素被正确析构；</li>
+<li>释放堆空间时向操作系统提供的地址是不正确的，后果未知。</li>
+</ul>
+<p>正是基于上述理由，书里反复强调，<code>new/delete, new [] /delete []</code>要配对使用。</p>
+<h2 id="5-3-完整实验代码">5.3. 完整实验代码</h2>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="type">const</span> <span class="type">long</span> <span class="type">long</span> len = <span class="number">20194134</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Yu</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="type">int</span> iNumber;</span><br><span class="line">    <span class="built_in">Yu</span>()&#123;iNumber = <span class="number">1</span>;&#125;</span><br><span class="line">    ~<span class="built_in">Yu</span>()&#123;&#125;</span><br><span class="line">    <span class="comment">//重载 new[]操作符</span></span><br><span class="line">    <span class="type">void</span>* <span class="keyword">operator</span> <span class="keyword">new</span>[](<span class="type">size_t</span> sz)&#123;</span><br><span class="line">        <span class="comment">/*打印四个关键数据：</span></span><br><span class="line"><span class="comment">        ①数组的长度</span></span><br><span class="line"><span class="comment">        ②new[]过程中申请的内存空间大小</span></span><br><span class="line"><span class="comment">        ③数组实际需要的内存空间</span></span><br><span class="line"><span class="comment">        ④ ②、③的差值</span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;|Length: %lld\n|Real Size: %lld\n|Raw Size(int(4)*length): %lld\n|Gap: %lld\n&quot;</span>,len,sz,len*<span class="number">4</span>,(<span class="type">long</span> <span class="type">long</span>)sz-len*<span class="number">4</span>);</span><br><span class="line">        <span class="comment">//完成内存分配</span></span><br><span class="line">        <span class="type">void</span>* o = <span class="built_in">malloc</span>(sz);</span><br><span class="line">        <span class="keyword">return</span> o;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//重载delete[]操作符</span></span><br><span class="line">    <span class="type">void</span> <span class="keyword">operator</span> <span class="keyword">delete</span>[](<span class="type">void</span> *o)&#123;</span><br><span class="line">        <span class="comment">//打印析构的开端地址</span></span><br><span class="line">        cout&lt;&lt;<span class="string">&quot;Destruct from: &quot;</span>&lt;&lt;o&lt;&lt;endl;</span><br><span class="line">        <span class="comment">//完成内存释放</span></span><br><span class="line">        <span class="built_in">free</span>(o);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="comment">// 打印long long的大小</span></span><br><span class="line">    <span class="type">int</span> len_ll = <span class="built_in">sizeof</span>(<span class="type">long</span> <span class="type">long</span>);</span><br><span class="line">    cout&lt;&lt;<span class="string">&quot;Size of long long: &quot;</span>&lt;&lt;len_ll&lt;&lt;endl;</span><br><span class="line">    <span class="comment">//生成一个长度为len(20194134)的Yu类型的数组</span></span><br><span class="line">    Yu* testArr = <span class="keyword">new</span> Yu[len];</span><br><span class="line">    <span class="comment">//获取该数组开头的地址并打印</span></span><br><span class="line">    <span class="type">char</span>* p1 = (<span class="type">char</span>*) testArr;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;Address for the Array: &quot;</span>&lt;&lt; testArr &lt;&lt;endl;</span><br><span class="line">    <span class="comment">//获取该数组前的8字节，识别为long long 并打印</span></span><br><span class="line">    cout&lt;&lt; <span class="string">&quot;The long long before the Array: &quot;</span> &lt;&lt; *(<span class="type">long</span> <span class="type">long</span>*)(p1-len_ll)&lt;&lt;endl;</span><br><span class="line">    <span class="comment">//释放数组空间</span></span><br><span class="line">    <span class="keyword">delete</span>[] testArr;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>完整输出：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">Size of <span class="type">long</span> <span class="type">long</span>: <span class="number">8</span></span><br><span class="line">|Length: <span class="number">20194134</span></span><br><span class="line">|Real Size: <span class="number">80776544</span></span><br><span class="line">|<span class="function">Raw <span class="title">Size</span><span class="params">(<span class="type">int</span>(<span class="number">4</span>)*length)</span>: <span class="number">80776536</span></span></span><br><span class="line"><span class="function">|Gap: <span class="number">8</span></span></span><br><span class="line"><span class="function">Address for the Array: <span class="number">0x2670048</span></span></span><br><span class="line"><span class="function">The long long before the Array: <span class="number">20194134</span></span></span><br><span class="line"><span class="function">Destuct from: <span class="number">0x2670040</span></span></span><br></pre></td></tr></table></figure>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://czrui99.github.io">黎明の守望者</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://czrui99.github.io/post/495bd30e.html">https://czrui99.github.io/post/495bd30e.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://czrui99.github.io" target="_blank">Arui</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/CPP/">CPP</a></div><div class="post_share"><div class="social-share" data-image="https://czrui99.oss-cn-chengdu.aliyuncs.com/Cpp小知识点.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/a5ed6f9a.html"><img class="prev-cover" src="https://czrui99.oss-cn-chengdu.aliyuncs.com/数据结构与算法.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">数据结构与算法之数据结构</div></div></a></div><div class="next-post pull-right"><a href="/post/7c4ca347.html"><img class="next-cover" src="https://czrui99.oss-cn-chengdu.aliyuncs.com/jisuanjiwangluogaishu.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">计算机网络概述</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/post/13756432.html" title="C++提高编程"><img class="cover" src="https://czrui99.oss-cn-chengdu.aliyuncs.com/CPP提高编程.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-09-05</div><div class="title">C++提高编程</div></div></a></div><div><a href="/post/e4d4908a.html" title="c++基础入门"><img class="cover" src="https://czrui99.oss-cn-chengdu.aliyuncs.com/cppbasicprogramming.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-08-18</div><div class="title">c++基础入门</div></div></a></div><div><a href="/post/a9426668.html" title="c++核心编程"><img class="cover" src="https://czrui99.oss-cn-chengdu.aliyuncs.com/546576533fffgxvcv.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-08-22</div><div class="title">c++核心编程</div></div></a></div><div><a href="/post/7727319.html" title="终极C++避坑指南"><img class="cover" src="https://czrui99.oss-cn-chengdu.aliyuncs.com/Cpp避坑指南.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-09-15</div><div class="title">终极C++避坑指南</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://czrui99.oss-cn-chengdu.aliyuncs.com/头像.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">黎明の守望者</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">27</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">12</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/czrui99"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/czrui99" target="_blank" title="Github"><i class="iconfont icon-githubblack"></i></a><a class="social-icon" href="/17368648909@163.com" target="_blank" title="Email"><i class="iconfont icon-youxiang"></i></a><a class="social-icon" href="http://wpa.qq.com/msgrd?v=3&amp;uin=2315928847&amp;site=qq&amp;menu=yes" target="_blank" title="QQ"><i class="iconfont icon-kefulei_huabanfuben"></i></a><a class="social-icon" href="https://www.zhihu.com/people/hei-yan-29-49" target="_blank" title=""><i class="iconfont icon-zu4630"></i></a><a class="social-icon" href="https://space.bilibili.com/344040248" target="_blank" title=""><i class="iconfont icon-bilibili1"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E5%9C%B0%E5%9D%80%E3%80%81%E5%AD%97%E8%8A%82%E3%80%81%E4%BD%8D"><span class="toc-text">1.地址、字节、位</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E5%8F%98%E9%87%8F%E7%9A%84%E5%86%85%E5%AD%98"><span class="toc-text">2.变量的内存</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E6%8C%87%E9%92%88%E5%8F%98%E9%87%8F"><span class="toc-text">3.指针变量</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E5%80%BC%E7%9B%B8%E5%90%8C%E7%9A%84%E4%B8%A4%E4%B8%AA%E6%8C%87%E9%92%88%E6%89%80%E6%8C%87%E5%90%91%E7%9A%84%E5%8F%98%E9%87%8F%E7%9A%84%E5%80%BC%E5%8F%AF%E4%BB%A5%E4%B8%8D%E5%90%8C"><span class="toc-text">4.值相同的两个指针所指向的变量的值可以不同</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E5%85%B3%E4%BA%8Ec-%E5%86%85delete-%E5%8E%9F%E7%90%86%E7%9A%84%E6%8E%A2%E7%B4%A2"><span class="toc-text">5. 关于c++内delete[]原理的探索</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#5-1-%E7%BB%93%E5%90%88%E4%BB%A3%E7%A0%81%E7%9A%84%E5%88%86%E6%9E%90"><span class="toc-text">5.1. 结合代码的分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-2-%E7%BB%93%E8%AE%BA"><span class="toc-text">5.2. 结论</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-3-%E5%AE%8C%E6%95%B4%E5%AE%9E%E9%AA%8C%E4%BB%A3%E7%A0%81"><span class="toc-text">5.3. 完整实验代码</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/7727319.html" title="终极C++避坑指南"><img src="https://czrui99.oss-cn-chengdu.aliyuncs.com/Cpp避坑指南.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="终极C++避坑指南"/></a><div class="content"><a class="title" href="/post/7727319.html" title="终极C++避坑指南">终极C++避坑指南</a><time datetime="2022-09-15T01:26:54.000Z" title="发表于 2022-09-15 09:26:54">2022-09-15</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/af3b74fa.html" title="计算机网络网络层"><img src="https://czrui99.oss-cn-chengdu.aliyuncs.com/计算机网络第6章（应用层）.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="计算机网络网络层"/></a><div class="content"><a class="title" href="/post/af3b74fa.html" title="计算机网络网络层">计算机网络网络层</a><time datetime="2022-09-08T13:22:08.000Z" title="发表于 2022-09-08 21:22:08">2022-09-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/bc654c1.html" title="网络层补充"><img src="https://czrui99.oss-cn-chengdu.aliyuncs.com/hot-air-balloon-2451220.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="网络层补充"/></a><div class="content"><a class="title" href="/post/bc654c1.html" title="网络层补充">网络层补充</a><time datetime="2022-09-08T01:38:08.000Z" title="发表于 2022-09-08 09:38:08">2022-09-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/af3b74fa.html" title="计算机网络网络层"><img src="https://czrui99.oss-cn-chengdu.aliyuncs.com/计算机网络第5章（运输层）.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="计算机网络网络层"/></a><div class="content"><a class="title" href="/post/af3b74fa.html" title="计算机网络网络层">计算机网络网络层</a><time datetime="2022-09-08T01:22:08.000Z" title="发表于 2022-09-08 09:22:08">2022-09-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/7f1df8e1.html" title="数据链路层补充"><img src="https://czrui99.oss-cn-chengdu.aliyuncs.com/bg5.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="数据链路层补充"/></a><div class="content"><a class="title" href="/post/7f1df8e1.html" title="数据链路层补充">数据链路层补充</a><time datetime="2022-09-08T00:00:07.000Z" title="发表于 2022-09-08 08:00:07">2022-09-08</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2021 - 2022 By 黎明の守望者</div><div class="footer_custom_text"><p><a style="margin-inline:5px"target="_blank" href="https://hexo.io/"><img src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为 Hexo" alt="HEXO"></a><a style="margin-inline:5px"target="_blank" href="https://butterfly.js.org/"><img src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用 Butterfly" alt="Butterfly"></a><a style="margin-inline:5px"target="_blank" href="https://www.jsdelivr.com/"><img src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&logo=jsDelivr" title="本站使用 Jsdelivr 为静态资源提供CDN加速" alt="Jsdelivr"></a><a style="margin-inline:5px"target="_blank" href="https://github.com/"><img src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由 GitHub 托管" alt="GitHub"></a><a style="margin-inline:5px"target="_blank"href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" alt="img" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a></p></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i><span id="percent">0</span><span> </span></button></div></div><div id="algolia-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="search-wrap"><div id="algolia-search-input"></div><hr/><div id="algolia-search-results"><div id="algolia-hits"></div><div id="algolia-pagination"></div><div id="algolia-info"><div class="algolia-stats"></div><div class="algolia-poweredBy"></div></div></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><script src="https://cdn.jsdelivr.net/npm/algoliasearch/dist/algoliasearch-lite.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instantsearch.js/dist/instantsearch.production.min.js"></script><script src="/js/search/algolia.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>(()=>{
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://v1.czrui.top/',
+      region: '',
+      onCommentLoaded: function () {
+        btf.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://v1.czrui.top/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(function (res) {
+      countELement.innerText = res[0].count
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
+
+  const runFn = () => {
+    init()
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') {
+      setTimeout(runFn,0)
+      return
+    } 
+    getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo()
+  } else {
+    window.loadOtherComment = () => {
+      loadTwikoo()
+    }
+  }
+})()</script></div><script src="/js/myscript.js"></script><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start -->
+  <script data-pjax src="https://czrui99.oss-cn-chengdu.aliyuncs.com/hexo_githubcalendar.js"></script>
+  <script data-pjax>
+        function GithubCalendarConfig(){
+            var git_githubapiurl ="https://python-github-calendar-api.czrui.top/api?czrui99";
+            var git_color =['#ebedf0', '#fdcdec', '#fc9bd9', '#fa6ac5', '#f838b2', '#f5089f', '#c4067e', '#92055e', '#540336', '#48022f', '#30021f'];
+            var git_user ="czrui99";
+            var parent_div_git = document.getElementById('recent-posts');
+            var git_div_html = '<div class="recent-post-item" style="width:100%;height:auto;padding:10px;"><div id="github_loading" style="width:10%;height:100%;margin:0 auto;display: block"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"  viewBox="0 0 50 50" style="enable-background:new 0 0 50 50" xml:space="preserve"><path fill="#d0d0d0" d="M25.251,6.461c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615V6.461z" transform="rotate(275.098 25 25)"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.6s" repeatCount="indefinite"></animateTransform></path></svg></div><div id="github_container"></div></div>';
+            if(parent_div_git && location.pathname =='/'){
+                console.log('已挂载github calendar')
+                // parent_div_git.innerHTML=git_div_html+parent_div_git.innerHTML // 无报错，但不影响使用(支持pjax跳转)
+                parent_div_git.insertAdjacentHTML("afterbegin",git_div_html) // 有报错，但不影响使用(支持pjax跳转)
+            };
+            GithubCalendar(git_githubapiurl,git_color,git_user)
+        }
+        if(document.getElementById('recent-posts')){
+            GithubCalendarConfig()
+        }
+    </script>
+    <style>#github_container{min-height:280px}@media screen and (max-width:650px) {#github_container{background-image:;min-height:0px}}</style>
+    <style></style><div class="js-pjax"><script async="async">var arr = document.getElementsByClassName('recent-post-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '700ms');
+    arr[i].setAttribute('data-wow-delay', '100ms');
+    arr[i].setAttribute('data-wow-offset', '100');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('card-widget');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script><script async="async">var arr = document.getElementsByClassName('article-sort-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script><script async="async">var arr = document.getElementsByClassName('tag-cloud-list is-center');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script><script async="async">var arr = document.getElementsByClassName('flink-list');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script><script async="async">var arr = document.getElementsByClassName('headerlink');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script><script async="async">var arr = document.getElementsByClassName('category-list-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script></div><script defer src="https://unpkg.zhimg.com/hexo-butterfly-wowjs/lib/wow.min.js"></script><script defer src="https://unpkg.zhimg.com/hexo-butterfly-wowjs/lib/wow_init.js"></script><!-- hexo injector body_end end --></body></html>

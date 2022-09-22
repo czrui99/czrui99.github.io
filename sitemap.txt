@@ -23,9 +23,9 @@ https://czrui99.github.io/post/f35d2fbc.html
 https://czrui99.github.io/post/42416da6.html
 https://czrui99.github.io/post/4ba3e4ba.html
 https://czrui99.github.io/about/index.html
-https://czrui99.github.io/categories/index.html
 https://czrui99.github.io/link/index.html
 https://czrui99.github.io/tags/index.html
+https://czrui99.github.io/categories/index.html
 https://czrui99.github.io/post/7fe0a2ba.html
 https://czrui99.github.io/post/cf8cd6f6.html
 https://czrui99.github.io/post/32907ef6.html
@@ -35,8 +35,8 @@ https://czrui99.github.io/tags/data-structure/
 https://czrui99.github.io/tags/Algorithm/
 https://czrui99.github.io/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/
 https://czrui99.github.io/tags/CPP/
-https://czrui99.github.io/tags/git/
 https://czrui99.github.io/tags/python/
+https://czrui99.github.io/tags/git/
 https://czrui99.github.io/tags/butterfly/
 https://czrui99.github.io/tags/node-js%E5%AE%89%E8%A3%85/
 https://czrui99.github.io/tags/vscode%E5%AE%89%E8%A3%85/
@@ -55,8 +55,8 @@ https://czrui99.github.io/tags/%E6%A2%AF%E5%BA%A6%E5%A4%9A%E5%AD%94%E7%BB%93%E6%
 https://czrui99.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/
 https://czrui99.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/
 https://czrui99.github.io/categories/CPP/
-https://czrui99.github.io/categories/Git/
 https://czrui99.github.io/categories/Python/
+https://czrui99.github.io/categories/Git/
 https://czrui99.github.io/categories/hexo%E5%8D%9A%E5%AE%A2/
 https://czrui99.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/
 https://czrui99.github.io/categories/%E5%85%B6%E4%BB%96/

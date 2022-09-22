@@ -227,15 +227,6 @@
   </url>
   
   <url>
-    <loc>https://czrui99.github.io/categories/index.html</loc>
-    
-    <lastmod>2022-08-04</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://czrui99.github.io/link/index.html</loc>
     
     <lastmod>2022-08-04</lastmod>
@@ -246,6 +237,15 @@
   
   <url>
     <loc>https://czrui99.github.io/tags/index.html</loc>
+    
+    <lastmod>2022-08-04</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://czrui99.github.io/categories/index.html</loc>
     
     <lastmod>2022-08-04</lastmod>
     
@@ -327,14 +327,14 @@
   </url>
   
   <url>
-    <loc>https://czrui99.github.io/tags/git/</loc>
+    <loc>https://czrui99.github.io/tags/python/</loc>
     <lastmod>2022-09-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://czrui99.github.io/tags/python/</loc>
+    <loc>https://czrui99.github.io/tags/git/</loc>
     <lastmod>2022-09-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -469,14 +469,14 @@
   </url>
   
   <url>
-    <loc>https://czrui99.github.io/categories/Git/</loc>
+    <loc>https://czrui99.github.io/categories/Python/</loc>
     <lastmod>2022-09-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://czrui99.github.io/categories/Python/</loc>
+    <loc>https://czrui99.github.io/categories/Git/</loc>
     <lastmod>2022-09-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>

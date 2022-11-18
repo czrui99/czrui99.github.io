@@ -1,0 +1,536 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>文件管理 | Arui</title><meta name="author" content="黎明の守望者"><meta name="copyright" content="黎明の守望者"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="文件管理的概念和功能   文件的属性   文件内部的数据如何组织起来？   文件之间应该如何组织起来？  操作系统应该向上提供哪些功能？   从上往下看，文件应该如何存放在外存？   其他需要由操作系统实现的文件管理功能  文件的逻辑结构   无结构文件  有结构文件  定长记录：  不定长记录：  有结构文件的逻辑结构  顺序文件   索引文件  不经意间让我想起了数据库的索引，聚簇索引和唯一索">
+<meta property="og:type" content="article">
+<meta property="og:title" content="文件管理">
+<meta property="og:url" content="https://czrui99.github.io/post/ae533703.html">
+<meta property="og:site_name" content="Arui">
+<meta property="og:description" content="文件管理的概念和功能   文件的属性   文件内部的数据如何组织起来？   文件之间应该如何组织起来？  操作系统应该向上提供哪些功能？   从上往下看，文件应该如何存放在外存？   其他需要由操作系统实现的文件管理功能  文件的逻辑结构   无结构文件  有结构文件  定长记录：  不定长记录：  有结构文件的逻辑结构  顺序文件   索引文件  不经意间让我想起了数据库的索引，聚簇索引和唯一索">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://czrui99.oss-cn-chengdu.aliyuncs.com/操作系统7.png">
+<meta property="article:published_time" content="2022-11-10T01:18:45.000Z">
+<meta property="article:modified_time" content="2022-11-10T03:18:45.000Z">
+<meta property="article:author" content="黎明の守望者">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://czrui99.oss-cn-chengdu.aliyuncs.com/操作系统7.png"><link rel="shortcut icon" href="https://czrui99.oss-cn-chengdu.aliyuncs.com/头像.jpg"><link rel="canonical" href="https://czrui99.github.io/post/ae533703"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="XuQ492rP0A8na65TM5TUnfGZDq_Uj2mMFUFfPMZL9uM"/><meta name="baidu-site-verification" content="code-nmA358lSIW"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: {"appId":"2Z2TCBQMCD","apiKey":"20bec46ff7dfe65428b5a1578a88913e","indexName":"hexo","hits":{"per_page":6},"languages":{"input_placeholder":"搜索文章","hits_empty":"找不到您查询的内容：${query}","hits_stats":"找到 ${hits} 条结果，用时 ${time} 毫秒"}},
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '文件管理',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-11-10 11:18:45'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel='stylesheet' href='/css/MyStyle.css'> <link rel='stylesheet' href='/css/iconfont.css'> <link rel="stylesheet" href="/css/font.css"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://unpkg.zhimg.com/hexo-butterfly-wowjs/lib/animate.min.css" media="print" onload="this.media='screen'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.2.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://czrui99.oss-cn-chengdu.aliyuncs.com/头像.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">36</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/bb/"><i class="fa-fw fas fa-bomb"></i><span> 动态</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background: linear-gradient(20deg, #0062be, #925696, #cc426e, #fb0347)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Arui</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/bb/"><i class="fa-fw fas fa-bomb"></i><span> 动态</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">文件管理</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-11-10T01:18:45.000Z" title="发表于 2022-11-10 09:18:45">2022-11-10</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-11-10T03:18:45.000Z" title="更新于 2022-11-10 11:18:45">2022-11-10</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">794</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>2分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="文件管理"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="文件管理的概念和功能">文件管理的概念和功能</h1>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_a2688e14.png" alt="image_a2688e14.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_da307846.png" alt="image_da307846.png"></p>
+<h2 id="文件的属性">文件的属性</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_2c067b9e.png" alt="image_2c067b9e.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_93762977.png" alt="image_93762977.png"></p>
+<h2 id="文件内部的数据如何组织起来？">文件内部的数据如何组织起来？</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_be0ba59c.png" alt="image_be0ba59c.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_2bd5907d.png" alt="image_2bd5907d.png"></p>
+<h2 id="文件之间应该如何组织起来？">文件之间应该如何组织起来？</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_8291ecfd.png" alt="image_8291ecfd.png"></p>
+<h2 id="操作系统应该向上提供哪些功能？">操作系统应该向上提供哪些功能？</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_5fe99a48.png" alt="image_5fe99a48.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_171eb20a.png" alt="image_171eb20a.png"></p>
+<h2 id="从上往下看，文件应该如何存放在外存？">从上往下看，文件应该如何存放在外存？</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_e4cb2981.png" alt="image_e4cb2981.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_c95c837c.png" alt="image_c95c837c.png"></p>
+<h2 id="其他需要由操作系统实现的文件管理功能">其他需要由操作系统实现的文件管理功能</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_477489d6.png" alt="image_477489d6.png"></p>
+<h1 id="文件的逻辑结构">文件的逻辑结构</h1>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_3ba5535b.png" alt="image_3ba5535b.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_370ed4b5.png" alt="image_370ed4b5.png"></p>
+<h2 id="无结构文件">无结构文件</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_318334da.png" alt="image_318334da.png"></p>
+<h2 id="有结构文件">有结构文件</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_710069b9.png" alt="image_710069b9.png"><br>
+定长记录：<br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_4406d5d8.png" alt="image_4406d5d8.png"><br>
+不定长记录：<br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_f78440dc.png" alt="image_f78440dc.png"></p>
+<h2 id="有结构文件的逻辑结构">有结构文件的逻辑结构</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_c0de63e6.png" alt="image_c0de63e6.png"></p>
+<h2 id="顺序文件">顺序文件</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_e83e5efb.png" alt="image_e83e5efb.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_32aadaa8.png" alt="image_32aadaa8.png"></p>
+<h2 id="索引文件">索引文件</h2>
+<ul>
+<li>不经意间让我想起了数据库的索引，聚簇索引和唯一索引等，有了更进一步的理解，而且知道了它的时间空间效率。<br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_8f9d208f.png" alt="image_8f9d208f.png"></li>
+</ul>
+<h2 id="索引顺序文件">索引顺序文件</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_b27c4751.png" alt="image_b27c4751.png"><br>
+索引顺序文件的效率分析：<br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_90ea6d39.png" alt="image_90ea6d39.png"></p>
+<h2 id="多级索引顺序文件">多级索引顺序文件</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_8a67809b.png" alt="image_8a67809b.png"></p>
+<h1 id="文件目录结构">文件目录结构</h1>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_742390d9.png" alt="image_742390d9.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_f260e2bd.png" alt="image_f260e2bd.png"></p>
+<h2 id="文件控制块-FCB">文件控制块(FCB)</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_07d9f0a7.png" alt="image_07d9f0a7.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_e075c0c0.png" alt="image_e075c0c0.png"></p>
+<h2 id="对目录的操作">对目录的操作</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_403ad213.png" alt="image_403ad213.png"></p>
+<h2 id="单级目录结构">单级目录结构</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_46ed7876.png" alt="image_46ed7876.png"></p>
+<h2 id="两级目录结构">两级目录结构</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_e578fe45.png" alt="image_e578fe45.png"></p>
+<h2 id="多级目录结构-树形目录结构">多级目录结构(树形目录结构)</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_1735a12c.png" alt="image_1735a12c.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_34ff6fb6.png" alt="image_34ff6fb6.png"><br>
+无环图目录结构解决文件共享<br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_d311ba05.png" alt="image_d311ba05.png"></p>
+<h2 id="无环图目录结构">无环图目录结构</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_ca4e68b1.png" alt="image_ca4e68b1.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_af23d7f0.png" alt="image_af23d7f0.png"></p>
+<h2 id="索引节点-FCB的改进-瘦身">索引节点(FCB的改进)瘦身</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_8d132658.png" alt="image_8d132658.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_f53e29f6.png" alt="image_f53e29f6.png"></p>
+<h1 id="文件物理结构">文件物理结构</h1>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_a48b0a67.png" alt="image_a48b0a67.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_14a0840c.png" alt="image_14a0840c.png"></p>
+<h2 id="文件块、磁盘块">文件块、磁盘块</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_92cf8854.png" alt="image_92cf8854.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_7a86e3c0.png" alt="image_7a86e3c0.png"></p>
+<h2 id="连续分配">连续分配</h2>
+<p>连续分配优点：<br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_236a9054.png" alt="image_236a9054.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_12c43c86.png" alt="image_12c43c86.png"><br>
+连续分配缺点：</p>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_094bf3e0.png" alt="image_094bf3e0.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_6f3211a9.png" alt="image_6f3211a9.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_995fb81e.png" alt="image_995fb81e.png"></p>
+<h2 id="链接分配">链接分配</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_873bdf4f.png" alt="image_873bdf4f.png"></p>
+<h3 id="隐式链接">隐式链接</h3>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_e64cbce2.png" alt="image_e64cbce2.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_4ef17c23.png" alt="image_4ef17c23.png"></p>
+<h3 id="显式链接">显式链接</h3>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_c4385c8e.png" alt="image_c4385c8e.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_d414c931.png" alt="image_d414c931.png"></p>
+<h3 id="链接分配总结">链接分配总结</h3>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_17b044cb.png" alt="image_17b044cb.png"></p>
+<h2 id="索引分配">索引分配</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_a8ad9725.png" alt="image_a8ad9725.png"><br>
+如何实现逻辑块号到物理块号的转换？<br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_0417e059.png" alt="image_0417e059.png"><br>
+数据太大，一个索引表装不下那么多的映射怎么办？<br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_a730c59d.png" alt="image_a730c59d.png"></p>
+<h3 id="链接方案">链接方案</h3>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_81a8ef7b.png" alt="image_81a8ef7b.png"></p>
+<h3 id="多层索引">多层索引</h3>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_6f87f997.png" alt="image_6f87f997.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_dc28e4e1.png" alt="image_dc28e4e1.png"></p>
+<h3 id="混合索引">混合索引</h3>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_38a20c8f.png" alt="image_38a20c8f.png"></p>
+<h3 id="索引分配总结">索引分配总结</h3>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_7e3fa1eb.png" alt="image_7e3fa1eb.png"></p>
+<h2 id="文件物理结构分配总结">文件物理结构分配总结</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_537e92ea.png" alt="image_537e92ea.png"></p>
+<h1 id="对磁盘块的管理">对磁盘块的管理</h1>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_17944c1e.png" alt="image_17944c1e.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_ab92d5b9.png" alt="image_ab92d5b9.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_c4776205.png" alt="image_c4776205.png"></p>
+<h2 id="存储空间的划分与初始化">存储空间的划分与初始化</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_e54cbda5.png" alt="image_e54cbda5.png"></p>
+<h2 id="空闲表法">空闲表法</h2>
+<p>如何分配？<br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_4b6a92d5.png" alt="image_4b6a92d5.png"></p>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_baa5dedc.png" alt="image_baa5dedc.png"><br>
+如何回收？<br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_9ee18ec5.png" alt="image_9ee18ec5.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_0ef5ce04.png" alt="image_0ef5ce04.png"></p>
+<h2 id="空闲链表法">空闲链表法</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_f379fe3c.png" alt="image_f379fe3c.png"></p>
+<h2 id="空闲盘块链">空闲盘块链</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_87ef4f6f.png" alt="image_87ef4f6f.png"></p>
+<h2 id="空闲盘区链">空闲盘区链</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_12a3531d.png" alt="image_12a3531d.png"></p>
+<h2 id="位示图法">位示图法</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_e2837fbe.png" alt="image_e2837fbe.png"><br>
+如何分配与回收？</p>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_00d5e180.png" alt="image_00d5e180.png"></p>
+<h2 id="成组链接法">成组链接法</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_36a19b23.png" alt="image_36a19b23.png"><br>
+超级块的作用<br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_88e9cdbc.png" alt="image_88e9cdbc.png"><br>
+如何分配？<br>
+需要1个空闲磁盘块<br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_d39ec6df.png" alt="image_d39ec6df.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_674c2347.png" alt="image_674c2347.png"><br>
+需要100个空心啊磁盘块<br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_c095153d.png" alt="image_c095153d.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_5215a8db.png" alt="image_5215a8db.png"><br>
+如何回收？<br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_e25a43dc.png" alt="image_e25a43dc.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_8df478fc.png" alt="image_8df478fc.png"><br>
+第二种情况，第一组已满<br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_ee168324.png" alt="image_ee168324.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_53a31d4e.png" alt="image_53a31d4e.png"></p>
+<h1 id="文件的基本操作-创建、删除、打开、关闭等">文件的基本操作(创建、删除、打开、关闭等)</h1>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_64d2c113.png" alt="image_64d2c113.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_65306af8.png" alt="image_65306af8.png"></p>
+<h2 id="创建文件">创建文件</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_c4fe7320.png" alt="image_c4fe7320.png"></p>
+<h2 id="删除文件">删除文件</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_2ae55375.png" alt="image_2ae55375.png"></p>
+<h2 id="打开文件">打开文件</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_88fc6b53.png" alt="image_88fc6b53.png"><br>
+打开文件表有两种：<br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_de66047e.png" alt="image_de66047e.png"></p>
+<h2 id="关闭文件">关闭文件</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_035a226b.png" alt="image_035a226b.png"></p>
+<h2 id="读文件">读文件</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_8f9fda99.png" alt="image_8f9fda99.png"></p>
+<h2 id="写文件">写文件</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_8f7b3a68.png" alt="image_8f7b3a68.png"></p>
+<h1 id="文件共享">文件共享</h1>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_374bfa9e.png" alt="image_374bfa9e.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_415f5f4a.png" alt="image_415f5f4a.png"></p>
+<h2 id="基于索引结点的共享方式（硬链接）">基于索引结点的共享方式（硬链接）</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_92330d8a.png" alt="image_92330d8a.png"></p>
+<h2 id="基于符号链的共享方式（软链接）">基于符号链的共享方式（软链接）</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_da1bf243.png" alt="image_da1bf243.png"></p>
+<blockquote>
+<p>软链接访问磁盘的速度会更慢，因为要进行多次磁盘IO操作</p>
+</blockquote>
+<p>例子<br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_36879b1c.png" alt="image_36879b1c.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_b0458edd.png" alt="image_b0458edd.png"></p>
+<p>共享的文件不存在时<br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_cca334cb.png" alt="image_cca334cb.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_cee5f7f4.png" alt="image_cee5f7f4.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_35dd99bd.png" alt="image_35dd99bd.png"></p>
+<h1 id="文件保护">文件保护</h1>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_a7709f7e.png" alt="image_a7709f7e.png"></p>
+<h2 id="口令保护">口令保护</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_c70d2f20.png" alt="image_c70d2f20.png"></p>
+<h2 id="加密保护">加密保护</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_a097a416.png" alt="image_a097a416.png"></p>
+<h2 id="访问控制">访问控制</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_aac60127.png" alt="image_aac60127.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_c64cff50.png" alt="image_c64cff50.png"></p>
+<h3 id="windows的访问控制">windows的访问控制</h3>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_6fba6f96.png" alt="image_6fba6f96.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_45a5bb79.png" alt="image_45a5bb79.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_3fbf6b02.png" alt="image_3fbf6b02.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_003031a0.png" alt="image_003031a0.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_f027bcbe.png" alt="image_f027bcbe.png"></p>
+<h1 id="文件系统的层次结构">文件系统的层次结构</h1>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_51ed85a7.png" alt="image_51ed85a7.png"></p>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_464c0af3.png" alt="image_464c0af3.png"></p>
+<h1 id="磁盘的结构">磁盘的结构</h1>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_ab9be9ff.png" alt="image_ab9be9ff.png"></p>
+<h2 id="磁盘、磁道、扇区">磁盘、磁道、扇区</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_7466880b.png" alt="image_7466880b.png"></p>
+<h2 id="如何在磁盘中读-写数据">如何在磁盘中读/写数据</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_d8519b44.png" alt="image_d8519b44.png"></p>
+<h2 id="盘面、柱面">盘面、柱面</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_1d75a4ee.png" alt="image_1d75a4ee.png"></p>
+<h2 id="磁盘的分类">磁盘的分类</h2>
+<h3 id="按磁头是否可移动分类">按磁头是否可移动分类</h3>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_725b5d75.png" alt="image_725b5d75.png"></p>
+<h3 id="按盘片是否可更换分类">按盘片是否可更换分类</h3>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_3f764534.png" alt="image_3f764534.png"></p>
+<h1 id="磁盘调度算法">磁盘调度算法</h1>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_a75fa116.png" alt="image_a75fa116.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_7ccf1c1d.png" alt="image_7ccf1c1d.png"></p>
+<h2 id="一次磁盘读-写操作需要的时间">一次磁盘读/写操作需要的时间</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_fb975180.png" alt="image_fb975180.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_b267f789.png" alt="image_b267f789.png"></p>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_301b0c1a.png" alt="image_301b0c1a.png"></p>
+<h2 id="先来先服务-FCFS">先来先服务(FCFS)</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_088ab543.png" alt="image_088ab543.png"></p>
+<h2 id="最短寻找时间优先算法（SSTF）">最短寻找时间优先算法（SSTF）</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_d944560d.png" alt="image_d944560d.png"></p>
+<h2 id="扫描算法（SCAN）">扫描算法（SCAN）</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_7a33204c.png" alt="image_7a33204c.png"></p>
+<h2 id="LOOK算法">LOOK算法</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_e71ca4c5.png" alt="image_e71ca4c5.png"></p>
+<h2 id="循环扫描算法（S-SCAN）">循环扫描算法（S-SCAN）</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_492352ed.png" alt="image_492352ed.png"></p>
+<h2 id="C-LOOK算法">C-LOOK算法</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_d258a35d.png" alt="image_d258a35d.png"></p>
+<h1 id="减少磁盘延迟时间的方法">减少磁盘延迟时间的方法</h1>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_b3364bd4.png" alt="image_b3364bd4.png"></p>
+<h2 id="前情回顾">前情回顾</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_59d829a2.png" alt="image_59d829a2.png"></p>
+<h2 id="交替编号">交替编号</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_ed8a94b8.png" alt="image_ed8a94b8.png"></p>
+<h2 id="磁盘地址结构的设计">磁盘地址结构的设计</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_0dc226c8.png" alt="image_0dc226c8.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_d2c8b224.png" alt="image_d2c8b224.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_91cf9337.png" alt="image_91cf9337.png"></p>
+<h2 id="错位命名">错位命名</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_06084be7.png" alt="image_06084be7.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_1efc6eda.png" alt="image_1efc6eda.png"></p>
+<h1 id="磁盘管理">磁盘管理</h1>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_78980b27.png" alt="image_78980b27.png"></p>
+<h2 id="磁盘初始化">磁盘初始化</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_a865e6ef.png" alt="image_a865e6ef.png"></p>
+<h2 id="引导块">引导块</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_ca781803.png" alt="image_ca781803.png"><br>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_ac84af3d.png" alt="image_ac84af3d.png"></p>
+<h2 id="坏块的管理">坏块的管理</h2>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_a04f08ca.png" alt="image_a04f08ca.png"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://czrui99.github.io">黎明の守望者</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://czrui99.github.io/post/ae533703.html">https://czrui99.github.io/post/ae533703.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://czrui99.github.io" target="_blank">Arui</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://czrui99.oss-cn-chengdu.aliyuncs.com/操作系统7.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/41e39f2b.html"><img class="prev-cover" src="https://czrui99.oss-cn-chengdu.aliyuncs.com/操作系统6.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">内存管理</div></div></a></div><div class="next-post pull-right"><a href="/post/9051db8.html"><img class="next-cover" src="https://czrui99.oss-cn-chengdu.aliyuncs.com/操作系统8.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">IO管理</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://czrui99.oss-cn-chengdu.aliyuncs.com/头像.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">黎明の守望者</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">36</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">21</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/czrui99"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/czrui99" target="_blank" title="Github"><i class="iconfont icon-githubblack"></i></a><a class="social-icon" href="/17368648909@163.com" target="_blank" title="Email"><i class="iconfont icon-youxiang"></i></a><a class="social-icon" href="http://wpa.qq.com/msgrd?v=3&amp;uin=2315928847&amp;site=qq&amp;menu=yes" target="_blank" title="QQ"><i class="iconfont icon-kefulei_huabanfuben"></i></a><a class="social-icon" href="https://www.zhihu.com/people/hei-yan-29-49" target="_blank" title=""><i class="iconfont icon-zu4630"></i></a><a class="social-icon" href="https://space.bilibili.com/344040248" target="_blank" title=""><i class="iconfont icon-bilibili1"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86%E7%9A%84%E6%A6%82%E5%BF%B5%E5%92%8C%E5%8A%9F%E8%83%BD"><span class="toc-number">1.</span> <span class="toc-text">文件管理的概念和功能</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E7%9A%84%E5%B1%9E%E6%80%A7"><span class="toc-number">1.1.</span> <span class="toc-text">文件的属性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%86%85%E9%83%A8%E7%9A%84%E6%95%B0%E6%8D%AE%E5%A6%82%E4%BD%95%E7%BB%84%E7%BB%87%E8%B5%B7%E6%9D%A5%EF%BC%9F"><span class="toc-number">1.2.</span> <span class="toc-text">文件内部的数据如何组织起来？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E4%B9%8B%E9%97%B4%E5%BA%94%E8%AF%A5%E5%A6%82%E4%BD%95%E7%BB%84%E7%BB%87%E8%B5%B7%E6%9D%A5%EF%BC%9F"><span class="toc-number">1.3.</span> <span class="toc-text">文件之间应该如何组织起来？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%BA%94%E8%AF%A5%E5%90%91%E4%B8%8A%E6%8F%90%E4%BE%9B%E5%93%AA%E4%BA%9B%E5%8A%9F%E8%83%BD%EF%BC%9F"><span class="toc-number">1.4.</span> <span class="toc-text">操作系统应该向上提供哪些功能？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8E%E4%B8%8A%E5%BE%80%E4%B8%8B%E7%9C%8B%EF%BC%8C%E6%96%87%E4%BB%B6%E5%BA%94%E8%AF%A5%E5%A6%82%E4%BD%95%E5%AD%98%E6%94%BE%E5%9C%A8%E5%A4%96%E5%AD%98%EF%BC%9F"><span class="toc-number">1.5.</span> <span class="toc-text">从上往下看，文件应该如何存放在外存？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E9%9C%80%E8%A6%81%E7%94%B1%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E7%8E%B0%E7%9A%84%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86%E5%8A%9F%E8%83%BD"><span class="toc-number">1.6.</span> <span class="toc-text">其他需要由操作系统实现的文件管理功能</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E7%9A%84%E9%80%BB%E8%BE%91%E7%BB%93%E6%9E%84"><span class="toc-number">2.</span> <span class="toc-text">文件的逻辑结构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%97%A0%E7%BB%93%E6%9E%84%E6%96%87%E4%BB%B6"><span class="toc-number">2.1.</span> <span class="toc-text">无结构文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%89%E7%BB%93%E6%9E%84%E6%96%87%E4%BB%B6"><span class="toc-number">2.2.</span> <span class="toc-text">有结构文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%89%E7%BB%93%E6%9E%84%E6%96%87%E4%BB%B6%E7%9A%84%E9%80%BB%E8%BE%91%E7%BB%93%E6%9E%84"><span class="toc-number">2.3.</span> <span class="toc-text">有结构文件的逻辑结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A1%BA%E5%BA%8F%E6%96%87%E4%BB%B6"><span class="toc-number">2.4.</span> <span class="toc-text">顺序文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B4%A2%E5%BC%95%E6%96%87%E4%BB%B6"><span class="toc-number">2.5.</span> <span class="toc-text">索引文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B4%A2%E5%BC%95%E9%A1%BA%E5%BA%8F%E6%96%87%E4%BB%B6"><span class="toc-number">2.6.</span> <span class="toc-text">索引顺序文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A%E7%BA%A7%E7%B4%A2%E5%BC%95%E9%A1%BA%E5%BA%8F%E6%96%87%E4%BB%B6"><span class="toc-number">2.7.</span> <span class="toc-text">多级索引顺序文件</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="toc-number">3.</span> <span class="toc-text">文件目录结构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E6%8E%A7%E5%88%B6%E5%9D%97-FCB"><span class="toc-number">3.1.</span> <span class="toc-text">文件控制块(FCB)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%B9%E7%9B%AE%E5%BD%95%E7%9A%84%E6%93%8D%E4%BD%9C"><span class="toc-number">3.2.</span> <span class="toc-text">对目录的操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%95%E7%BA%A7%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="toc-number">3.3.</span> <span class="toc-text">单级目录结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%A4%E7%BA%A7%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="toc-number">3.4.</span> <span class="toc-text">两级目录结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A%E7%BA%A7%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84-%E6%A0%91%E5%BD%A2%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="toc-number">3.5.</span> <span class="toc-text">多级目录结构(树形目录结构)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%97%A0%E7%8E%AF%E5%9B%BE%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="toc-number">3.6.</span> <span class="toc-text">无环图目录结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B4%A2%E5%BC%95%E8%8A%82%E7%82%B9-FCB%E7%9A%84%E6%94%B9%E8%BF%9B-%E7%98%A6%E8%BA%AB"><span class="toc-number">3.7.</span> <span class="toc-text">索引节点(FCB的改进)瘦身</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E7%89%A9%E7%90%86%E7%BB%93%E6%9E%84"><span class="toc-number">4.</span> <span class="toc-text">文件物理结构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%9D%97%E3%80%81%E7%A3%81%E7%9B%98%E5%9D%97"><span class="toc-number">4.1.</span> <span class="toc-text">文件块、磁盘块</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%9E%E7%BB%AD%E5%88%86%E9%85%8D"><span class="toc-number">4.2.</span> <span class="toc-text">连续分配</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%93%BE%E6%8E%A5%E5%88%86%E9%85%8D"><span class="toc-number">4.3.</span> <span class="toc-text">链接分配</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9A%90%E5%BC%8F%E9%93%BE%E6%8E%A5"><span class="toc-number">4.3.1.</span> <span class="toc-text">隐式链接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%98%BE%E5%BC%8F%E9%93%BE%E6%8E%A5"><span class="toc-number">4.3.2.</span> <span class="toc-text">显式链接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%93%BE%E6%8E%A5%E5%88%86%E9%85%8D%E6%80%BB%E7%BB%93"><span class="toc-number">4.3.3.</span> <span class="toc-text">链接分配总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B4%A2%E5%BC%95%E5%88%86%E9%85%8D"><span class="toc-number">4.4.</span> <span class="toc-text">索引分配</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%93%BE%E6%8E%A5%E6%96%B9%E6%A1%88"><span class="toc-number">4.4.1.</span> <span class="toc-text">链接方案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%9A%E5%B1%82%E7%B4%A2%E5%BC%95"><span class="toc-number">4.4.2.</span> <span class="toc-text">多层索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%B7%E5%90%88%E7%B4%A2%E5%BC%95"><span class="toc-number">4.4.3.</span> <span class="toc-text">混合索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B4%A2%E5%BC%95%E5%88%86%E9%85%8D%E6%80%BB%E7%BB%93"><span class="toc-number">4.4.4.</span> <span class="toc-text">索引分配总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E7%89%A9%E7%90%86%E7%BB%93%E6%9E%84%E5%88%86%E9%85%8D%E6%80%BB%E7%BB%93"><span class="toc-number">4.5.</span> <span class="toc-text">文件物理结构分配总结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AF%B9%E7%A3%81%E7%9B%98%E5%9D%97%E7%9A%84%E7%AE%A1%E7%90%86"><span class="toc-number">5.</span> <span class="toc-text">对磁盘块的管理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%98%E5%82%A8%E7%A9%BA%E9%97%B4%E7%9A%84%E5%88%92%E5%88%86%E4%B8%8E%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">5.1.</span> <span class="toc-text">存储空间的划分与初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A9%BA%E9%97%B2%E8%A1%A8%E6%B3%95"><span class="toc-number">5.2.</span> <span class="toc-text">空闲表法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A9%BA%E9%97%B2%E9%93%BE%E8%A1%A8%E6%B3%95"><span class="toc-number">5.3.</span> <span class="toc-text">空闲链表法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A9%BA%E9%97%B2%E7%9B%98%E5%9D%97%E9%93%BE"><span class="toc-number">5.4.</span> <span class="toc-text">空闲盘块链</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A9%BA%E9%97%B2%E7%9B%98%E5%8C%BA%E9%93%BE"><span class="toc-number">5.5.</span> <span class="toc-text">空闲盘区链</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%8D%E7%A4%BA%E5%9B%BE%E6%B3%95"><span class="toc-number">5.6.</span> <span class="toc-text">位示图法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%88%90%E7%BB%84%E9%93%BE%E6%8E%A5%E6%B3%95"><span class="toc-number">5.7.</span> <span class="toc-text">成组链接法</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C-%E5%88%9B%E5%BB%BA%E3%80%81%E5%88%A0%E9%99%A4%E3%80%81%E6%89%93%E5%BC%80%E3%80%81%E5%85%B3%E9%97%AD%E7%AD%89"><span class="toc-number">6.</span> <span class="toc-text">文件的基本操作(创建、删除、打开、关闭等)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E6%96%87%E4%BB%B6"><span class="toc-number">6.1.</span> <span class="toc-text">创建文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A0%E9%99%A4%E6%96%87%E4%BB%B6"><span class="toc-number">6.2.</span> <span class="toc-text">删除文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%93%E5%BC%80%E6%96%87%E4%BB%B6"><span class="toc-number">6.3.</span> <span class="toc-text">打开文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E9%97%AD%E6%96%87%E4%BB%B6"><span class="toc-number">6.4.</span> <span class="toc-text">关闭文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%BB%E6%96%87%E4%BB%B6"><span class="toc-number">6.5.</span> <span class="toc-text">读文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%99%E6%96%87%E4%BB%B6"><span class="toc-number">6.6.</span> <span class="toc-text">写文件</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%85%B1%E4%BA%AB"><span class="toc-number">7.</span> <span class="toc-text">文件共享</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E7%B4%A2%E5%BC%95%E7%BB%93%E7%82%B9%E7%9A%84%E5%85%B1%E4%BA%AB%E6%96%B9%E5%BC%8F%EF%BC%88%E7%A1%AC%E9%93%BE%E6%8E%A5%EF%BC%89"><span class="toc-number">7.1.</span> <span class="toc-text">基于索引结点的共享方式（硬链接）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E7%AC%A6%E5%8F%B7%E9%93%BE%E7%9A%84%E5%85%B1%E4%BA%AB%E6%96%B9%E5%BC%8F%EF%BC%88%E8%BD%AF%E9%93%BE%E6%8E%A5%EF%BC%89"><span class="toc-number">7.2.</span> <span class="toc-text">基于符号链的共享方式（软链接）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E4%BF%9D%E6%8A%A4"><span class="toc-number">8.</span> <span class="toc-text">文件保护</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%A3%E4%BB%A4%E4%BF%9D%E6%8A%A4"><span class="toc-number">8.1.</span> <span class="toc-text">口令保护</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8A%A0%E5%AF%86%E4%BF%9D%E6%8A%A4"><span class="toc-number">8.2.</span> <span class="toc-text">加密保护</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6"><span class="toc-number">8.3.</span> <span class="toc-text">访问控制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#windows%E7%9A%84%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6"><span class="toc-number">8.3.1.</span> <span class="toc-text">windows的访问控制</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%B1%82%E6%AC%A1%E7%BB%93%E6%9E%84"><span class="toc-number">9.</span> <span class="toc-text">文件系统的层次结构</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E7%9A%84%E7%BB%93%E6%9E%84"><span class="toc-number">10.</span> <span class="toc-text">磁盘的结构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E3%80%81%E7%A3%81%E9%81%93%E3%80%81%E6%89%87%E5%8C%BA"><span class="toc-number">10.1.</span> <span class="toc-text">磁盘、磁道、扇区</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%9C%A8%E7%A3%81%E7%9B%98%E4%B8%AD%E8%AF%BB-%E5%86%99%E6%95%B0%E6%8D%AE"><span class="toc-number">10.2.</span> <span class="toc-text">如何在磁盘中读&#x2F;写数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%98%E9%9D%A2%E3%80%81%E6%9F%B1%E9%9D%A2"><span class="toc-number">10.3.</span> <span class="toc-text">盘面、柱面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E7%9A%84%E5%88%86%E7%B1%BB"><span class="toc-number">10.4.</span> <span class="toc-text">磁盘的分类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%89%E7%A3%81%E5%A4%B4%E6%98%AF%E5%90%A6%E5%8F%AF%E7%A7%BB%E5%8A%A8%E5%88%86%E7%B1%BB"><span class="toc-number">10.4.1.</span> <span class="toc-text">按磁头是否可移动分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%89%E7%9B%98%E7%89%87%E6%98%AF%E5%90%A6%E5%8F%AF%E6%9B%B4%E6%8D%A2%E5%88%86%E7%B1%BB"><span class="toc-number">10.4.2.</span> <span class="toc-text">按盘片是否可更换分类</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95"><span class="toc-number">11.</span> <span class="toc-text">磁盘调度算法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E6%AC%A1%E7%A3%81%E7%9B%98%E8%AF%BB-%E5%86%99%E6%93%8D%E4%BD%9C%E9%9C%80%E8%A6%81%E7%9A%84%E6%97%B6%E9%97%B4"><span class="toc-number">11.1.</span> <span class="toc-text">一次磁盘读&#x2F;写操作需要的时间</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%88%E6%9D%A5%E5%85%88%E6%9C%8D%E5%8A%A1-FCFS"><span class="toc-number">11.2.</span> <span class="toc-text">先来先服务(FCFS)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%80%E7%9F%AD%E5%AF%BB%E6%89%BE%E6%97%B6%E9%97%B4%E4%BC%98%E5%85%88%E7%AE%97%E6%B3%95%EF%BC%88SSTF%EF%BC%89"><span class="toc-number">11.3.</span> <span class="toc-text">最短寻找时间优先算法（SSTF）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%AB%E6%8F%8F%E7%AE%97%E6%B3%95%EF%BC%88SCAN%EF%BC%89"><span class="toc-number">11.4.</span> <span class="toc-text">扫描算法（SCAN）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LOOK%E7%AE%97%E6%B3%95"><span class="toc-number">11.5.</span> <span class="toc-text">LOOK算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BE%AA%E7%8E%AF%E6%89%AB%E6%8F%8F%E7%AE%97%E6%B3%95%EF%BC%88S-SCAN%EF%BC%89"><span class="toc-number">11.6.</span> <span class="toc-text">循环扫描算法（S-SCAN）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#C-LOOK%E7%AE%97%E6%B3%95"><span class="toc-number">11.7.</span> <span class="toc-text">C-LOOK算法</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%87%8F%E5%B0%91%E7%A3%81%E7%9B%98%E5%BB%B6%E8%BF%9F%E6%97%B6%E9%97%B4%E7%9A%84%E6%96%B9%E6%B3%95"><span class="toc-number">12.</span> <span class="toc-text">减少磁盘延迟时间的方法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E6%83%85%E5%9B%9E%E9%A1%BE"><span class="toc-number">12.1.</span> <span class="toc-text">前情回顾</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%A4%E6%9B%BF%E7%BC%96%E5%8F%B7"><span class="toc-number">12.2.</span> <span class="toc-text">交替编号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E5%9C%B0%E5%9D%80%E7%BB%93%E6%9E%84%E7%9A%84%E8%AE%BE%E8%AE%A1"><span class="toc-number">12.3.</span> <span class="toc-text">磁盘地址结构的设计</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%94%99%E4%BD%8D%E5%91%BD%E5%90%8D"><span class="toc-number">12.4.</span> <span class="toc-text">错位命名</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E7%AE%A1%E7%90%86"><span class="toc-number">13.</span> <span class="toc-text">磁盘管理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">13.1.</span> <span class="toc-text">磁盘初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%95%E5%AF%BC%E5%9D%97"><span class="toc-number">13.2.</span> <span class="toc-text">引导块</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9D%8F%E5%9D%97%E7%9A%84%E7%AE%A1%E7%90%86"><span class="toc-number">13.3.</span> <span class="toc-text">坏块的管理</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/9051db8.html" title="IO管理"><img src="https://czrui99.oss-cn-chengdu.aliyuncs.com/操作系统8.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="IO管理"/></a><div class="content"><a class="title" href="/post/9051db8.html" title="IO管理">IO管理</a><time datetime="2022-11-12T04:18:45.000Z" title="发表于 2022-11-12 12:18:45">2022-11-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/ae533703.html" title="文件管理"><img src="https://czrui99.oss-cn-chengdu.aliyuncs.com/操作系统7.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="文件管理"/></a><div class="content"><a class="title" href="/post/ae533703.html" title="文件管理">文件管理</a><time datetime="2022-11-10T01:18:45.000Z" title="发表于 2022-11-10 09:18:45">2022-11-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/41e39f2b.html" title="内存管理"><img src="https://czrui99.oss-cn-chengdu.aliyuncs.com/操作系统6.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="内存管理"/></a><div class="content"><a class="title" href="/post/41e39f2b.html" title="内存管理">内存管理</a><time datetime="2022-11-06T13:43:23.000Z" title="发表于 2022-11-06 21:43:23">2022-11-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/43d7308c.html" title="死锁"><img src="https://czrui99.oss-cn-chengdu.aliyuncs.com/操作系统5.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="死锁"/></a><div class="content"><a class="title" href="/post/43d7308c.html" title="死锁">死锁</a><time datetime="2022-10-13T03:18:45.000Z" title="发表于 2022-10-13 11:18:45">2022-10-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/c37ff426.html" title="进程的同步与互斥"><img src="https://czrui99.oss-cn-chengdu.aliyuncs.com/操作系统4.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="进程的同步与互斥"/></a><div class="content"><a class="title" href="/post/c37ff426.html" title="进程的同步与互斥">进程的同步与互斥</a><time datetime="2022-10-09T07:09:29.000Z" title="发表于 2022-10-09 15:09:29">2022-10-09</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2021 - 2022 By 黎明の守望者</div><div class="footer_custom_text"><p><a style="margin-inline:5px"target="_blank" href="https://hexo.io/"><img src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为 Hexo" alt="HEXO"></a><a style="margin-inline:5px"target="_blank" href="https://butterfly.js.org/"><img src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用 Butterfly" alt="Butterfly"></a><a style="margin-inline:5px"target="_blank" href="https://www.jsdelivr.com/"><img src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&logo=jsDelivr" title="本站使用 Jsdelivr 为静态资源提供CDN加速" alt="Jsdelivr"></a><a style="margin-inline:5px"target="_blank" href="https://github.com/"><img src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由 GitHub 托管" alt="GitHub"></a><a style="margin-inline:5px"target="_blank"href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" alt="img" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a></p></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i><span id="percent">0</span><span> </span></button></div></div><div id="algolia-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="search-wrap"><div id="algolia-search-input"></div><hr/><div id="algolia-search-results"><div id="algolia-hits"></div><div id="algolia-pagination"></div><div id="algolia-info"><div class="algolia-stats"></div><div class="algolia-poweredBy"></div></div></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><script src="https://cdn.jsdelivr.net/npm/algoliasearch/dist/algoliasearch-lite.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instantsearch.js/dist/instantsearch.production.min.js"></script><script src="/js/search/algolia.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>(()=>{
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://v1.czrui.top/',
+      region: '',
+      onCommentLoaded: function () {
+        btf.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://v1.czrui.top/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(function (res) {
+      countELement.innerText = res[0].count
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
+
+  const runFn = () => {
+    init()
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') {
+      setTimeout(runFn,0)
+      return
+    } 
+    getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo()
+  } else {
+    window.loadOtherComment = () => {
+      loadTwikoo()
+    }
+  }
+})()</script></div><script src="/js/myscript.js"></script><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start -->
+  <script data-pjax src="https://czrui99.oss-cn-chengdu.aliyuncs.com/hexo_githubcalendar.js"></script>
+  <script data-pjax>
+        function GithubCalendarConfig(){
+            var git_githubapiurl ="https://python-github-calendar-api.czrui.top/api?czrui99";
+            var git_color =['#ebedf0', '#fdcdec', '#fc9bd9', '#fa6ac5', '#f838b2', '#f5089f', '#c4067e', '#92055e', '#540336', '#48022f', '#30021f'];
+            var git_user ="czrui99";
+            var parent_div_git = document.getElementById('recent-posts');
+            var git_div_html = '<div class="recent-post-item" style="width:100%;height:auto;padding:10px;"><div id="github_loading" style="width:10%;height:100%;margin:0 auto;display: block"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"  viewBox="0 0 50 50" style="enable-background:new 0 0 50 50" xml:space="preserve"><path fill="#d0d0d0" d="M25.251,6.461c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615V6.461z" transform="rotate(275.098 25 25)"><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.6s" repeatCount="indefinite"></animateTransform></path></svg></div><div id="github_container"></div></div>';
+            if(parent_div_git && location.pathname =='/'){
+                console.log('已挂载github calendar')
+                // parent_div_git.innerHTML=git_div_html+parent_div_git.innerHTML // 无报错，但不影响使用(支持pjax跳转)
+                parent_div_git.insertAdjacentHTML("afterbegin",git_div_html) // 有报错，但不影响使用(支持pjax跳转)
+            };
+            GithubCalendar(git_githubapiurl,git_color,git_user)
+        }
+        if(document.getElementById('recent-posts')){
+            GithubCalendarConfig()
+        }
+    </script>
+    <style>#github_container{min-height:280px}@media screen and (max-width:650px) {#github_container{background-image:;min-height:0px}}</style>
+    <style></style><div class="js-pjax"><script async="async">var arr = document.getElementsByClassName('recent-post-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '700ms');
+    arr[i].setAttribute('data-wow-delay', '100ms');
+    arr[i].setAttribute('data-wow-offset', '100');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('card-widget');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script><script async="async">var arr = document.getElementsByClassName('article-sort-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script><script async="async">var arr = document.getElementsByClassName('tag-cloud-list is-center');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script><script async="async">var arr = document.getElementsByClassName('flink-list');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script><script async="async">var arr = document.getElementsByClassName('headerlink');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script><script async="async">var arr = document.getElementsByClassName('category-list-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script></div><script defer src="https://unpkg.zhimg.com/hexo-butterfly-wowjs/lib/wow.min.js"></script><script defer src="https://unpkg.zhimg.com/hexo-butterfly-wowjs/lib/wow_init.js"></script><!-- hexo injector body_end end --></body></html>

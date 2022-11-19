@@ -212,14 +212,14 @@ PCB的作用是使一个在多道程序环境下不能独立运行的程序（�
 <h2 id="什么是进程控制？">什么是进程控制？</h2>
 <p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image-20220929093822968.png" alt="image-20220929093822968"></p>
 <h2 id="原语实现对进程的控制">原语实现对进程的控制</h2>
-<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="http://markdown.liangtengyu.com:9999/images//image_2a2b1492.png" alt="image_2a2b1492.png"></p>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_2a2b1492.png" alt="image_2a2b1492.png"></p>
 <h2 id="回忆进程的组织">回忆进程的组织</h2>
 <ul>
 <li>进程在操作系统中的组织使各个进程能够有序的进行切换和运行<br>
-<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="http://markdown.liangtengyu.com:9999/images//image_87aa7f94.png" alt="image_87aa7f94.png"></li>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_87aa7f94.png" alt="image_87aa7f94.png"></li>
 </ul>
 <h2 id="进程控制大致图解">进程控制大致图解</h2>
-<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="http://markdown.liangtengyu.com:9999/images//image_c0c60f47.png" alt="image_c0c60f47.png"></p>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_c0c60f47.png" alt="image_c0c60f47.png"></p>
 <blockquote>
 <p>这里说明一下调度和切换的区别：<br>
 <code>调度</code>是指决定资源分配给哪个进程的行为，是一种决策行为<br>
@@ -227,24 +227,24 @@ PCB的作用是使一个在多道程序环境下不能独立运行的程序（�
 一般来说现有资源调度，后有进程切换</p>
 </blockquote>
 <h2 id="进程控制原语的相同点">进程控制原语的相同点</h2>
-<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="http://markdown.liangtengyu.com:9999/images//image_da2e7315.png" alt="image_da2e7315.png"></p>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_da2e7315.png" alt="image_da2e7315.png"></p>
 <ul>
 <li>接下来我们就具体学习一下关于进程控制的五种原语，<code>进程的创建、终止、唤醒、阻塞、切换；</code></li>
 </ul>
 <h2 id="进程控制的五种原语">进程控制的五种原语</h2>
 <h3 id="进程的创建原语">进程的创建原语</h3>
-<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="http://markdown.liangtengyu.com:9999/images//image_9d205814.png" alt="image_9d205814.png"></p>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_9d205814.png" alt="image_9d205814.png"></p>
 <h3 id="进程的终止原语">进程的终止原语</h3>
-<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="http://markdown.liangtengyu.com:9999/images//image_cf4a83c2.png" alt="image_cf4a83c2.png"></p>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_cf4a83c2.png" alt="image_cf4a83c2.png"></p>
 <h3 id="进程的唤醒和阻塞原语">进程的唤醒和阻塞原语</h3>
 <ul>
 <li>进程的阻塞和唤醒原语是<code>成对存在</code>的，必须<code>成对使用</code>。</li>
 <li><code>阻塞原语</code>是由被阻塞进程自我调用实现的</li>
 <li><code>唤醒原语</code>是由一个被唤醒进程合作或被其他相关的进程调用实现的<br>
-<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="http://markdown.liangtengyu.com:9999/images//image_ebd52c05.png" alt="image_ebd52c05.png"></li>
+<img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_ebd52c05.png" alt="image_ebd52c05.png"></li>
 </ul>
 <h3 id="进程的切换原语">进程的切换原语</h3>
-<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="http://markdown.liangtengyu.com:9999/images//image_374b9575.png" alt="image_374b9575.png"></p>
+<p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_374b9575.png" alt="image_374b9575.png"></p>
 <h1 id="进程通信">进程通信</h1>
 <p><img src= "https://czrui99.oss-cn-chengdu.aliyuncs.com/loading.gif" data-lazy-src="https://czrui99.oss-cn-chengdu.aliyuncs.com/image_19b3ef34.png" alt="image_19b3ef34.png"></p>
 <h2 id="什么是进程通信？">什么是进程通信？</h2>
